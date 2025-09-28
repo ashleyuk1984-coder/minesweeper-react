@@ -36,7 +36,7 @@ export const defaultAnimationSettings: AnimationSettings = {
 
 export class CellAnimationManager {
   private animationSettings: AnimationSettings;
-  private animationTimeouts: Map<string, NodeJS.Timeout> = new Map();
+  private animationTimeouts: Map<string, number> = new Map();
 
   constructor(settings: AnimationSettings = defaultAnimationSettings) {
     this.animationSettings = settings;
@@ -110,21 +110,21 @@ export class CellAnimationManager {
   triggerCascadeReveal(cellElements: HTMLElement[], centerX: number, centerY: number): void {
     if (!this.isEnabled()) return;
 
-    const cellPositions = cellElements.map((element, index) => {
+    const cellPositions = cellElements.map((element) => {
       const rect = element.getBoundingClientRect();
       const cellCenterX = rect.left + rect.width / 2;
       const cellCenterY = rect.top + rect.height / 2;
       const distance = Math.sqrt(
         Math.pow(cellCenterX - centerX, 2) + Math.pow(cellCenterY - centerY, 2)
       );
-      return { element, distance, index };
+      return { element, distance };
     });
 
     // Sort by distance from center
     cellPositions.sort((a, b) => a.distance - b.distance);
 
     // Animate cells in waves based on distance
-    cellPositions.forEach(({ element, distance }, index) => {
+    cellPositions.forEach(({ element, distance }) => {
       const delay = Math.min(distance * 0.5, 800); // Max delay of 800ms
       
       setTimeout(() => {
