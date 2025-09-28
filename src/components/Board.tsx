@@ -6,9 +6,10 @@ interface BoardProps {
   board: CellType[][];
   onCellClick: (row: number, col: number) => void;
   onCellRightClick: (row: number, col: number) => void;
+  onCellChord: (row: number, col: number) => void;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick }) => {
+const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick, onCellChord }) => {
   if (!board || board.length === 0) {
     return <div className="board-loading">Loading...</div>;
   }
@@ -28,6 +29,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick }) =
             cell={cell}
             onClick={onCellClick}
             onRightClick={onCellRightClick}
+            onChord={onCellChord}
           />
         ))
       )}

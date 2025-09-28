@@ -13,6 +13,7 @@ const Game: React.FC = () => {
     difficulty,
     onCellClick,
     onCellRightClick,
+    onCellChord,
     resetGame,
     setDifficulty,
   } = useMinesweeper(Difficulty.EASY);
@@ -25,7 +26,7 @@ const Game: React.FC = () => {
     <div className="game">
       <header className="game-header">
         <h1>💣 Minesweeper</h1>
-        <p>Left-click to reveal, right-click to flag</p>
+        <p>Left-click to reveal, right-click to flag, middle-click/both buttons to chord</p>
       </header>
 
       <GameStatus
@@ -42,6 +43,7 @@ const Game: React.FC = () => {
           board={board}
           onCellClick={onCellClick}
           onCellRightClick={onCellRightClick}
+          onCellChord={onCellChord}
         />
       </div>
 

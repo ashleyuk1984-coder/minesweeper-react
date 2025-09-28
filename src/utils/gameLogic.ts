@@ -195,3 +195,59 @@ export const revealAllMines = (board: Cell[][]): Cell[][] => {
     }))
   );
 };
+
+// Chording: reveal all unflagged neighbors if flagged count matches the number
+export const chordReveal = (board: Cell[][], row: number, col: number): Cell[][] => {
+  const rows = board.length;
+  const cols = board[0].length;
+  let newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  
+  if (row < 0 || row >= rows || col < 0 || col >= cols) {
+    return newBoard;
+  }
+  
+  const cell = newBoard[row][col];
+  
+  // Only chord on revealed cells with numbers
+  if (cell.state !== CellState.REVEALED || cell.isMine || cell.neighborMines === 0) {
+    return newBoard;
+  }
+  
+  const directions = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1]
+  ];
+  
+  // Count flagged neighbors
+  let flaggedCount = 0;
+  const neighbors: Array<{ row: number; col: number; cell: Cell }> = [];
+  
+  for (const [dr, dc] of directions) {
+    const newRow = row + dr;
+    const newCol = col + dc;
+    
+    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+      const neighborCell = newBoard[newRow][newCol];
+      neighbors.push({ row: newRow, col: newCol, cell: neighborCell });
+      
+      if (neighborCell.state === CellState.FLAGGED) {
+        flaggedCount++;
+      }
+    }
+  }
+  
+  // Only chord if flagged count matches the number
+  if (flaggedCount !== cell.neighborMines) {
+    return newBoard;
+  }
+  
+  // Reveal all unflagged neighbors
+  for (const { row: nRow, col: nCol, cell: neighborCell } of neighbors) {
+    if (neighborCell.state === CellState.HIDDEN) {
+      newBoard = revealCell(newBoard, nRow, nCol);
+    }
+  }
+  
+  return newBoard;
+};

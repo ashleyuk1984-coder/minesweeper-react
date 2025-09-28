@@ -9,6 +9,7 @@ import {
   checkGameState,
   getMinesLeft,
   revealAllMines,
+  chordReveal,
 } from '../utils/gameLogic';
 
 interface UseMinesweeperReturn {
@@ -20,6 +21,7 @@ interface UseMinesweeperReturn {
   config: GameConfig;
   onCellClick: (row: number, col: number) => void;
   onCellRightClick: (row: number, col: number) => void;
+  onCellChord: (row: number, col: number) => void;
   resetGame: () => void;
   setDifficulty: (difficulty: Difficulty, customConfig?: GameConfig) => void;
 }
@@ -127,6 +129,28 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     setMinesLeft(getMinesLeft(newBoard, config.mines));
   }, [board, gameState, config.mines]);
 
+  const onCellChord = useCallback((row: number, col: number) => {
+    if (gameState !== GameState.PLAYING) {
+      return;
+    }
+
+    const newBoard = chordReveal(board, row, col);
+    setBoard(newBoard);
+
+    // Check if game is over after chording
+    const newGameState = checkGameState(newBoard, config);
+    
+    if (newGameState === GameState.LOST) {
+      setGameState(GameState.LOST);
+      setBoard(revealAllMines(newBoard));
+    } else if (newGameState === GameState.WON) {
+      setGameState(GameState.WON);
+    }
+
+    // Update mines left
+    setMinesLeft(getMinesLeft(newBoard, config.mines));
+  }, [board, gameState, config]);
+
   return {
     board,
     gameState,
@@ -136,6 +160,7 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     config,
     onCellClick,
     onCellRightClick,
+    onCellChord,
     resetGame,
     setDifficulty,
   };

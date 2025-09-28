@@ -5,9 +5,10 @@ interface CellProps {
   cell: CellType;
   onClick: (row: number, col: number) => void;
   onRightClick: (row: number, col: number) => void;
+  onChord: (row: number, col: number) => void;
 }
 
-const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick }) => {
+const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => {
   const handleClick = () => {
     onClick(cell.row, cell.col);
   };
@@ -15,6 +16,21 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick }) => {
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
     onRightClick(cell.row, cell.col);
+  };
+
+  const handleMiddleClick = (e: React.MouseEvent) => {
+    if (e.button === 1) { // Middle mouse button
+      e.preventDefault();
+      onChord(cell.row, cell.col);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Handle both left and right buttons pressed simultaneously
+    if (e.buttons === 3) { // Both left (1) and right (2) buttons = 3
+      e.preventDefault();
+      onChord(cell.row, cell.col);
+    }
   };
 
   const getCellContent = () => {
@@ -60,7 +76,9 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick }) => {
       className={getCellClass()}
       onClick={handleClick}
       onContextMenu={handleRightClick}
-      disabled={cell.state === CellState.REVEALED}
+      onMouseDown={handleMouseDown}
+      onAuxClick={handleMiddleClick}
+      disabled={false} // Allow chording on revealed cells
     >
       {getCellContent()}
     </button>
