@@ -19,18 +19,59 @@ export enum Difficulty {
   CUSTOM = 'custom',
 }
 
+export enum BoardShape {
+  RECTANGLE = 'rectangle',
+  HEXAGON = 'hexagon',
+  TRIANGLE = 'triangle',
+  DIAMOND = 'diamond',
+  CROSS = 'cross',
+  CIRCLE = 'circle',
+  CUSTOM = 'custom',
+}
+
+export interface Coordinate {
+  row: number;
+  col: number;
+}
+
 export interface Cell {
   isMine: boolean;
   state: CellState;
   neighborMines: number;
   row: number;
   col: number;
+  // For non-rectangular boards, some positions might not exist
+  exists?: boolean;
+  // Visual positioning for irregular shapes
+  x?: number;
+  y?: number;
 }
 
 export interface GameConfig {
   rows: number;
   cols: number;
   mines: number;
+  boardShape?: BoardShape;
+}
+
+export interface BoardShapeConfig {
+  shape: BoardShape;
+  name: string;
+  displayName: string;
+  description: string;
+  // Function to determine if a cell exists at given coordinates
+  cellExists: (row: number, col: number, rows: number, cols: number) => boolean;
+  // Function to get neighbors for a cell (accounting for shape)
+  getNeighbors: (row: number, col: number, rows: number, cols: number) => Coordinate[];
+  // CSS class for styling
+  cssClass: string;
+  // Grid layout properties
+  gridLayout: {
+    type: 'rectangle' | 'hexagon' | 'triangle' | 'custom';
+    cellSize?: number;
+    gap?: number;
+    offsetEven?: boolean; // For hexagonal grids
+  };
 }
 
 export interface GameStats {
@@ -53,8 +94,8 @@ export interface PlayerStatistics {
 }
 
 export const DIFFICULTY_CONFIGS: Record<Difficulty, GameConfig> = {
-  [Difficulty.EASY]: { rows: 9, cols: 9, mines: 10 },
-  [Difficulty.MEDIUM]: { rows: 16, cols: 16, mines: 40 },
-  [Difficulty.HARD]: { rows: 16, cols: 30, mines: 99 },
-  [Difficulty.CUSTOM]: { rows: 16, cols: 16, mines: 40 }, // Default for custom
+  [Difficulty.EASY]: { rows: 9, cols: 9, mines: 10, boardShape: BoardShape.RECTANGLE },
+  [Difficulty.MEDIUM]: { rows: 16, cols: 16, mines: 40, boardShape: BoardShape.RECTANGLE },
+  [Difficulty.HARD]: { rows: 16, cols: 30, mines: 99, boardShape: BoardShape.RECTANGLE },
+  [Difficulty.CUSTOM]: { rows: 16, cols: 16, mines: 40, boardShape: BoardShape.RECTANGLE }, // Default for custom
 };

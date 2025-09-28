@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Difficulty } from '../types';
+import { Difficulty, BoardShape, DIFFICULTY_CONFIGS } from '../types';
 import { useMinesweeper } from '../hooks/useMinesweeper';
 import { useTheme } from '../hooks/useTheme';
 import Board from './Board';
@@ -8,6 +8,7 @@ import Statistics from './Statistics';
 import ThemeSelector from './ThemeSelector';
 import AudioControls from './AudioControls';
 import { AnimationControls } from './AnimationControls';
+import { BoardShapeSelector } from './BoardShapeSelector';
 import { cellAnimationManager, animationUtils } from '../utils/animationSystem';
 
 const Game: React.FC = () => {
@@ -36,6 +37,10 @@ const Game: React.FC = () => {
     // Default to false if user prefers reduced motion
     return !animationUtils.respectsReducedMotion();
   });
+  const [boardShape, setBoardShape] = useState<BoardShape>(() => {
+    const savedShape = localStorage.getItem('minesweeper-boardShape');
+    return savedShape ? (savedShape as BoardShape) : BoardShape.RECTANGLE;
+  });
 
   const { currentTheme, availableThemes, changeTheme } = useTheme();
   
@@ -44,9 +49,21 @@ const Game: React.FC = () => {
     localStorage.setItem('minesweeper-animations', JSON.stringify(animationsEnabled));
     cellAnimationManager.updateSettings({ enabled: animationsEnabled });
   }, [animationsEnabled]);
+  
+  // Save board shape preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('minesweeper-boardShape', boardShape);
+  }, [boardShape]);
 
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
     setDifficulty(newDifficulty);
+  };
+  
+  const handleBoardShapeChange = (newShape: BoardShape) => {
+    setBoardShape(newShape);
+    // Update the config with the new board shape and reset the game
+    const newConfig = { ...DIFFICULTY_CONFIGS[difficulty], boardShape: newShape };
+    setDifficulty(difficulty, newConfig);
   };
 
   return (
@@ -71,6 +88,11 @@ const Game: React.FC = () => {
               availableThemes={availableThemes}
               onThemeChange={changeTheme}
             />
+            <BoardShapeSelector
+              currentShape={boardShape}
+              onShapeChange={handleBoardShapeChange}
+              disabled={gameState === 'playing'}
+            />
             <AudioControls />
             <AnimationControls
               animationsEnabled={animationsEnabled}
@@ -86,6 +108,7 @@ const Game: React.FC = () => {
           onCellRightClick={onCellRightClick}
           onCellChord={onCellChord}
           animationsEnabled={animationsEnabled}
+          boardShape={boardShape}
         />
       </div>
 

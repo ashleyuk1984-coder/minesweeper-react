@@ -1172,6 +1172,118 @@ body {
   animation: none !important;
 }
 
+/* Board Shape Selector */
+.board-shape-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--theme-cardBackground);
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--theme-borderColor);
+  box-shadow: 0 4px 12px var(--theme-shadowColor);
+  transition: all 0.3s ease;
+  min-width: 220px;
+}
+
+.shape-label {
+  font-weight: 600;
+  color: var(--theme-primaryText);
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.shape-select {
+  padding: 8px 12px;
+  border: 2px solid var(--theme-borderColor);
+  border-radius: 8px;
+  background: var(--theme-cardBackground);
+  color: var(--theme-primaryText);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="5" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.shape-select:focus {
+  outline: none;
+  border-color: var(--theme-buttonGradient);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.shape-select:hover {
+  border-color: var(--theme-buttonGradient);
+}
+
+.shape-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.shape-description {
+  font-size: 0.85rem;
+  color: var(--theme-secondaryText);
+  font-style: italic;
+  line-height: 1.3;
+}
+
+/* Different Board Shape Styles */
+.board-rectangle {
+  /* Default rectangular grid - already styled */
+}
+
+.board-hexagon {
+  /* Hexagonal offset grid */
+  gap: 2px;
+}
+
+.board-hexagon .cell {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  width: 28px;
+  height: 32px;
+  margin: 0 -2px;
+}
+
+.board-hexagon .cell:nth-child(even) {
+  transform: translateY(16px);
+}
+
+.board-triangle {
+  /* Triangular arrangement */
+  justify-items: center;
+}
+
+.board-triangle .cell {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  width: 30px;
+  height: 26px;
+}
+
+.board-diamond,
+.board-cross,
+.board-circle {
+  /* Custom shapes use standard cells but with shape-based visibility */
+  justify-items: center;
+  align-items: center;
+}
+
+/* Hide non-existent cells */
+.cell[data-exists="false"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cell[data-exists="true"] {
+  visibility: visible;
+}
+
 /* Performance optimizations */
 .cell {
   will-change: transform, box-shadow;

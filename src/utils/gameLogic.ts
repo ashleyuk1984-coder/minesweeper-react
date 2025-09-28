@@ -1,31 +1,48 @@
-import { Cell, CellState, GameState, GameConfig } from '../types';
+import { Cell, CellState, GameState, GameConfig, BoardShape } from '../types';
+import { getBoardShapeConfig, adjustMineCountForShape } from './boardShapes';
 
-export const createEmptyBoard = (rows: number, cols: number): Cell[][] => {
+export const createEmptyBoard = (rows: number, cols: number, boardShape: BoardShape = BoardShape.RECTANGLE): Cell[][] => {
+  const shapeConfig = getBoardShapeConfig(boardShape);
+  
   return Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: cols }, (_, col) => ({
-      isMine: false,
-      state: CellState.HIDDEN,
-      neighborMines: 0,
-      row,
-      col,
-    }))
+    Array.from({ length: cols }, (_, col) => {
+      const exists = shapeConfig.cellExists(row, col, rows, cols);
+      return {
+        isMine: false,
+        state: CellState.HIDDEN,
+        neighborMines: 0,
+        row,
+        col,
+        exists,
+      };
+    })
   );
 };
 
-export const placeMines = (board: Cell[][], mineCount: number, excludeRow?: number, excludeCol?: number): Cell[][] => {
+export const placeMines = (board: Cell[][], mineCount: number, excludeRow?: number, excludeCol?: number, boardShape: BoardShape = BoardShape.RECTANGLE): Cell[][] => {
   const rows = board.length;
   const cols = board[0].length;
   const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  const shapeConfig = getBoardShapeConfig(boardShape);
   
   let minesPlaced = 0;
   const positions: Array<{ row: number; col: number }> = [];
   
-  // Generate all possible positions
+  // Generate all possible positions (only for existing cells)
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
+      // Skip non-existent cells in the shape
+      if (!shapeConfig.cellExists(row, col, rows, cols)) {
+        continue;
+      }
+      
       if (excludeRow !== undefined && excludeCol !== undefined) {
         // Don't place mines on the first clicked cell or its neighbors
-        if (Math.abs(row - excludeRow) <= 1 && Math.abs(col - excludeCol) <= 1) {
+        const neighbors = shapeConfig.getNeighbors(excludeRow, excludeCol, rows, cols);
+        const isFirstClickOrNeighbor = (row === excludeRow && col === excludeCol) ||
+          neighbors.some(n => n.row === row && n.col === col);
+        
+        if (isFirstClickOrNeighbor) {
           continue;
         }
       }
@@ -49,30 +66,29 @@ export const placeMines = (board: Cell[][], mineCount: number, excludeRow?: numb
   return newBoard;
 };
 
-export const calculateNeighborMines = (board: Cell[][]): Cell[][] => {
+export const calculateNeighborMines = (board: Cell[][], boardShape: BoardShape = BoardShape.RECTANGLE): Cell[][] => {
   const rows = board.length;
   const cols = board[0].length;
   const newBoard = board.map(row => row.map(cell => ({ ...cell })));
-  
-  const directions = [
-    [-1, -1], [-1, 0], [-1, 1],
-    [0, -1],           [0, 1],
-    [1, -1],  [1, 0],  [1, 1]
-  ];
+  const shapeConfig = getBoardShapeConfig(boardShape);
   
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
+      // Skip non-existent cells
+      if (!shapeConfig.cellExists(row, col, rows, cols)) {
+        continue;
+      }
+      
       if (!newBoard[row][col].isMine) {
         let count = 0;
         
-        for (const [dr, dc] of directions) {
-          const newRow = row + dr;
-          const newCol = col + dc;
-          
-          if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-            if (newBoard[newRow][newCol].isMine) {
-              count++;
-            }
+        // Use shape-specific neighbor calculation
+        const neighbors = shapeConfig.getNeighbors(row, col, rows, cols);
+        
+        for (const neighbor of neighbors) {
+          if (shapeConfig.cellExists(neighbor.row, neighbor.col, rows, cols) &&
+              newBoard[neighbor.row][neighbor.col].isMine) {
+            count++;
           }
         }
         
@@ -84,12 +100,18 @@ export const calculateNeighborMines = (board: Cell[][]): Cell[][] => {
   return newBoard;
 };
 
-export const revealCell = (board: Cell[][], row: number, col: number): Cell[][] => {
+export const revealCell = (board: Cell[][], row: number, col: number, boardShape: BoardShape = BoardShape.RECTANGLE): Cell[][] => {
   const rows = board.length;
   const cols = board[0].length;
   const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  const shapeConfig = getBoardShapeConfig(boardShape);
   
   if (row < 0 || row >= rows || col < 0 || col >= cols) {
+    return newBoard;
+  }
+  
+  // Check if cell exists in this shape
+  if (!shapeConfig.cellExists(row, col, rows, cols)) {
     return newBoard;
   }
   
@@ -103,20 +125,13 @@ export const revealCell = (board: Cell[][], row: number, col: number): Cell[][] 
   
   // If it's an empty cell (no neighboring mines), reveal all neighbors
   if (!cell.isMine && cell.neighborMines === 0) {
-    const directions = [
-      [-1, -1], [-1, 0], [-1, 1],
-      [0, -1],           [0, 1],
-      [1, -1],  [1, 0],  [1, 1]
-    ];
+    const neighbors = shapeConfig.getNeighbors(row, col, rows, cols);
     
-    for (const [dr, dc] of directions) {
-      const newRow = row + dr;
-      const newCol = col + dc;
-      
-      if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-        const neighbor = newBoard[newRow][newCol];
-        if (neighbor.state === CellState.HIDDEN) {
-          const updatedBoard = revealCell(newBoard, newRow, newCol);
+    for (const neighbor of neighbors) {
+      if (shapeConfig.cellExists(neighbor.row, neighbor.col, rows, cols)) {
+        const neighborCell = newBoard[neighbor.row][neighbor.col];
+        if (neighborCell.state === CellState.HIDDEN) {
+          const updatedBoard = revealCell(newBoard, neighbor.row, neighbor.col, boardShape);
           // Copy the updated state back
           for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
@@ -160,10 +175,19 @@ export const toggleFlag = (board: Cell[][], row: number, col: number): Cell[][] 
 export const checkGameState = (board: Cell[][], config: GameConfig): GameState => {
   let revealedCells = 0;
   let flaggedMines = 0;
-  let totalCells = config.rows * config.cols;
+  let totalActiveCells = 0;
+  
+  const boardShape = config.boardShape || BoardShape.RECTANGLE;
+  const shapeConfig = getBoardShapeConfig(boardShape);
   
   for (let row = 0; row < config.rows; row++) {
     for (let col = 0; col < config.cols; col++) {
+      // Only count cells that exist in this shape
+      if (!shapeConfig.cellExists(row, col, config.rows, config.cols)) {
+        continue;
+      }
+      
+      totalActiveCells++;
       const cell = board[row][col];
       
       if (cell.state === CellState.REVEALED) {
@@ -179,8 +203,11 @@ export const checkGameState = (board: Cell[][], config: GameConfig): GameState =
     }
   }
   
+  // Adjust mine count for the shape
+  const adjustedMines = adjustMineCountForShape(config.mines, config.rows, config.cols, boardShape);
+  
   // Win condition: all non-mine cells are revealed
-  if (revealedCells === totalCells - config.mines) {
+  if (revealedCells === totalActiveCells - adjustedMines) {
     return GameState.WON;
   }
   
@@ -223,12 +250,18 @@ export const flagRemainingMines = (board: Cell[][]): Cell[][] => {
 };
 
 // Chording: reveal all unflagged neighbors if flagged count matches the number
-export const chordReveal = (board: Cell[][], row: number, col: number): Cell[][] => {
+export const chordReveal = (board: Cell[][], row: number, col: number, boardShape: BoardShape = BoardShape.RECTANGLE): Cell[][] => {
   const rows = board.length;
   const cols = board[0].length;
   let newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  const shapeConfig = getBoardShapeConfig(boardShape);
   
   if (row < 0 || row >= rows || col < 0 || col >= cols) {
+    return newBoard;
+  }
+  
+  // Check if cell exists in this shape
+  if (!shapeConfig.cellExists(row, col, rows, cols)) {
     return newBoard;
   }
   
@@ -239,23 +272,15 @@ export const chordReveal = (board: Cell[][], row: number, col: number): Cell[][]
     return newBoard;
   }
   
-  const directions = [
-    [-1, -1], [-1, 0], [-1, 1],
-    [0, -1],           [0, 1],
-    [1, -1],  [1, 0],  [1, 1]
-  ];
-  
-  // Count flagged neighbors
+  // Count flagged neighbors using shape-specific neighbors
   let flaggedCount = 0;
-  const neighbors: Array<{ row: number; col: number; cell: Cell }> = [];
+  const neighbors = shapeConfig.getNeighbors(row, col, rows, cols);
+  const validNeighbors: Array<{ row: number; col: number; cell: Cell }> = [];
   
-  for (const [dr, dc] of directions) {
-    const newRow = row + dr;
-    const newCol = col + dc;
-    
-    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-      const neighborCell = newBoard[newRow][newCol];
-      neighbors.push({ row: newRow, col: newCol, cell: neighborCell });
+  for (const neighbor of neighbors) {
+    if (shapeConfig.cellExists(neighbor.row, neighbor.col, rows, cols)) {
+      const neighborCell = newBoard[neighbor.row][neighbor.col];
+      validNeighbors.push({ row: neighbor.row, col: neighbor.col, cell: neighborCell });
       
       if (neighborCell.state === CellState.FLAGGED) {
         flaggedCount++;
@@ -269,9 +294,9 @@ export const chordReveal = (board: Cell[][], row: number, col: number): Cell[][]
   }
   
   // Reveal all unflagged neighbors
-  for (const { row: nRow, col: nCol, cell: neighborCell } of neighbors) {
+  for (const { row: nRow, col: nCol, cell: neighborCell } of validNeighbors) {
     if (neighborCell.state === CellState.HIDDEN) {
-      newBoard = revealCell(newBoard, nRow, nCol);
+      newBoard = revealCell(newBoard, nRow, nCol, boardShape);
     }
   }
   

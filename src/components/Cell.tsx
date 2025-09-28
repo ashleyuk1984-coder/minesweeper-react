@@ -10,9 +10,10 @@ interface CellProps {
   onRightClick: (row: number, col: number) => void;
   onChord: (row: number, col: number) => void;
   animationsEnabled?: boolean;
+  exists?: boolean;
 }
 
-const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord, animationsEnabled = true }) => {
+const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord, animationsEnabled = true, exists = true }) => {
   const cellRef = useRef<HTMLButtonElement>(null);
   const prevStateRef = useRef(cell.state);
   
@@ -156,6 +157,17 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord, anima
     return baseClass;
   };
 
+  // Don't render non-existent cells (but keep the DOM structure)
+  if (!exists) {
+    return (
+      <div 
+        className={`cell cell-nonexistent`}
+        data-exists="false"
+        style={{ visibility: 'hidden', pointerEvents: 'none' }}
+      />
+    );
+  }
+
   return (
     <button
       ref={cellRef}
@@ -165,6 +177,7 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord, anima
       onMouseDown={handleMouseDown}
       onAuxClick={handleMiddleClick}
       disabled={false} // Allow chording on revealed cells
+      data-exists="true"
     >
       {getCellContent()}
     </button>

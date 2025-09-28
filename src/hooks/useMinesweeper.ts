@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Cell, GameState, GameConfig, Difficulty, DIFFICULTY_CONFIGS, PlayerStatistics } from '../types';
+import { Cell, GameState, GameConfig, Difficulty, DIFFICULTY_CONFIGS, PlayerStatistics, BoardShape } from '../types';
 import {
   createEmptyBoard,
   placeMines,
@@ -35,7 +35,10 @@ interface UseMinesweeperReturn {
 export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY): UseMinesweeperReturn => {
   const [difficulty, setDifficultyState] = useState<Difficulty>(initialDifficulty);
   const [config, setConfig] = useState<GameConfig>(DIFFICULTY_CONFIGS[initialDifficulty]);
-  const [board, setBoard] = useState<Cell[][]>(() => createEmptyBoard(config.rows, config.cols));
+  const [board, setBoard] = useState<Cell[][]>(() => {
+    const boardShape = config.boardShape || BoardShape.RECTANGLE;
+    return createEmptyBoard(config.rows, config.cols, boardShape);
+  });
   const [gameState, setGameState] = useState<GameState>(GameState.NOT_STARTED);
   const [minesLeft, setMinesLeft] = useState<number>(config.mines);
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
@@ -69,7 +72,8 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
   }, [gameState, difficulty, timeElapsed]);
 
   const resetGame = useCallback(() => {
-    const newBoard = createEmptyBoard(config.rows, config.cols);
+    const boardShape = config.boardShape || BoardShape.RECTANGLE;
+    const newBoard = createEmptyBoard(config.rows, config.cols, boardShape);
     setBoard(newBoard);
     setGameState(GameState.NOT_STARTED);
     setMinesLeft(config.mines);
@@ -83,7 +87,8 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     const newConfig = customConfig || DIFFICULTY_CONFIGS[newDifficulty];
     setConfig(newConfig);
     
-    const newBoard = createEmptyBoard(newConfig.rows, newConfig.cols);
+    const boardShape = newConfig.boardShape || BoardShape.RECTANGLE;
+    const newBoard = createEmptyBoard(newConfig.rows, newConfig.cols, boardShape);
     setBoard(newBoard);
     setGameState(GameState.NOT_STARTED);
     setMinesLeft(newConfig.mines);
@@ -93,14 +98,15 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
   }, []);
 
   const initializeGame = useCallback((firstClickRow: number, firstClickCol: number) => {
-    let newBoard = placeMines(board, config.mines, firstClickRow, firstClickCol);
-    newBoard = calculateNeighborMines(newBoard);
+    const boardShape = config.boardShape || BoardShape.RECTANGLE;
+    let newBoard = placeMines(board, config.mines, firstClickRow, firstClickCol, boardShape);
+    newBoard = calculateNeighborMines(newBoard, boardShape);
     setBoard(newBoard);
     setGameState(GameState.PLAYING);
     setStartTime(Date.now());
     setIsFirstClick(false);
     return newBoard;
-  }, [board, config.mines]);
+  }, [board, config]);
 
   const onCellClick = useCallback((row: number, col: number) => {
     if (gameState === GameState.WON || gameState === GameState.LOST) {
@@ -115,7 +121,8 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     }
 
     // Reveal the cell
-    const newBoard = revealCell(currentBoard, row, col);
+    const boardShape = config.boardShape || BoardShape.RECTANGLE;
+    const newBoard = revealCell(currentBoard, row, col, boardShape);
     setBoard(newBoard);
 
     // Check if game is over
@@ -157,7 +164,8 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       return;
     }
 
-    const newBoard = chordReveal(board, row, col);
+    const boardShape = config.boardShape || BoardShape.RECTANGLE;
+    const newBoard = chordReveal(board, row, col, boardShape);
     setBoard(newBoard);
 
     // Check if game is over after chording
