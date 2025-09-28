@@ -363,19 +363,20 @@ body {
 
 /* Hidden cells */
 .cell.hidden {
-  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  background: linear-gradient(145deg, #e1e8ed, #d3dae1);
   box-shadow: 
     0 2px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.05);
+    inset 0 1px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .cell.hidden:hover {
-  background: linear-gradient(145deg, #e9ecef, #dee2e6);
+  background: linear-gradient(145deg, #d3dae1, #c5cdd4);
   transform: translateY(-1px);
   box-shadow: 
     0 4px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
 /* Revealed cells */
