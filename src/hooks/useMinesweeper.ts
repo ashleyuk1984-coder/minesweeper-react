@@ -10,6 +10,7 @@ import {
   getMinesLeft,
   revealAllMines,
   chordReveal,
+  flagRemainingMines,
 } from '../utils/gameLogic';
 import { getStatistics, updateStatistics, resetStatistics } from '../utils/statistics';
 
@@ -123,6 +124,7 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       setBoard(revealAllMines(newBoard));
     } else if (newGameState === GameState.WON) {
       setGameState(GameState.WON);
+      setBoard(flagRemainingMines(newBoard));
     } else if (!isFirstClick) {
       setGameState(GameState.PLAYING);
     }
@@ -157,6 +159,7 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       setBoard(revealAllMines(newBoard));
     } else if (newGameState === GameState.WON) {
       setGameState(GameState.WON);
+      setBoard(flagRemainingMines(newBoard));
     }
 
     // Update mines left

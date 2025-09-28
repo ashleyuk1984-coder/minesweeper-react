@@ -210,6 +210,18 @@ export const revealAllMines = (board: Cell[][]): Cell[][] => {
   );
 };
 
+// Auto-flag all remaining mines when game is won
+export const flagRemainingMines = (board: Cell[][]): Cell[][] => {
+  return board.map(row =>
+    row.map(cell => ({
+      ...cell,
+      state: cell.isMine && (cell.state === CellState.HIDDEN || cell.state === CellState.QUESTIONED) 
+        ? CellState.FLAGGED 
+        : cell.state,
+    }))
+  );
+};
+
 // Chording: reveal all unflagged neighbors if flagged count matches the number
 export const chordReveal = (board: Cell[][], row: number, col: number): Cell[][] => {
   const rows = board.length;
