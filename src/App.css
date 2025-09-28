@@ -948,7 +948,8 @@ body {
   transition: all 0.3s ease;
 }
 
-.mute-button {
+.mute-button,
+.particles-button {
   background: none;
   border: none;
   font-size: 1.4rem;
@@ -959,11 +960,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
 }
 
-.mute-button:hover {
+.mute-button:hover,
+.particles-button:hover {
   background: var(--theme-borderColor);
   transform: scale(1.1);
+}
+
+.particles-button {
+  position: relative;
+}
+
+.particles-button:hover {
+  animation: particleGlow 0.5s ease;
+}
+
+@keyframes particleGlow {
+  0%, 100% { transform: scale(1.1); }
+  50% { transform: scale(1.2); }
 }
 
 .volume-control {

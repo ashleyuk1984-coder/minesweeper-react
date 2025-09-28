@@ -128,6 +128,11 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       setGameState(GameState.WON);
       setBoard(flagRemainingMines(newBoard));
       audioSystem.playVictory();
+      
+      // Victory confetti effect - center of screen
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      particleSystem.victoryBurst(centerX, centerY);
     } else if (!isFirstClick) {
       setGameState(GameState.PLAYING);
     }
@@ -165,6 +170,11 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       setGameState(GameState.WON);
       setBoard(flagRemainingMines(newBoard));
       audioSystem.playVictory();
+      
+      // Victory confetti effect - center of screen
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      particleSystem.victoryBurst(centerX, centerY);
     }
 
     // Update mines left

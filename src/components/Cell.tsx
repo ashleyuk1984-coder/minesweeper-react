@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Cell as CellType, CellState } from '../types';
 import { audioSystem } from '../utils/audioSystem';
+import { particleSystem } from '../utils/particleSystem';
 
 interface CellProps {
   cell: CellType;
@@ -10,6 +11,29 @@ interface CellProps {
 }
 
 const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => {
+  const cellRef = useRef<HTMLButtonElement>(null);
+  const prevStateRef = useRef(cell.state);
+  
+  // Track state changes for particle effects
+  useEffect(() => {
+    if (prevStateRef.current !== cell.state && cellRef.current) {
+      const center = particleSystem.getElementCenter(cellRef.current);
+      
+      // Trigger effects based on state change
+      if (cell.state === CellState.REVEALED) {
+        if (cell.isMine) {
+          // Explosion effect for mines
+          particleSystem.explosion(center.x, center.y, 1.5);
+        } else {
+          // Dust effect for normal reveals
+          particleSystem.dust(center.x, center.y, 0.8);
+        }
+      }
+    }
+    
+    prevStateRef.current = cell.state;
+  }, [cell.state, cell.isMine]);
+
   const handleClick = () => {
     // Only prevent clicks on revealed cells if they don't have numbers (for chording)
     if (cell.state === CellState.REVEALED && cell.neighborMines === 0) {
@@ -20,6 +44,12 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
 
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Add particle effect for flagging
+    if (cellRef.current && cell.state === CellState.HIDDEN) {
+      const center = particleSystem.getElementCenter(cellRef.current);
+      particleSystem.dust(center.x, center.y, 0.3);
+    }
     
     // Play appropriate sound based on current state
     if (cell.state === CellState.HIDDEN) {
@@ -96,6 +126,7 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
 
   return (
     <button
+      ref={cellRef}
       className={getCellClass()}
       onClick={handleClick}
       onContextMenu={handleRightClick}

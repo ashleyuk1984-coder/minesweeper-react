@@ -4,6 +4,7 @@ import { audioSystem } from '../utils/audioSystem';
 const AudioControls: React.FC = () => {
   const [volume, setVolume] = useState(audioSystem.getVolume());
   const [isMuted, setIsMuted] = useState(audioSystem.isMutedState());
+  const [particlesEnabled, setParticlesEnabled] = useState(particleSystem.isEnabled());
 
   useEffect(() => {
     // Initialize audio on mount (first user interaction)
@@ -31,6 +32,12 @@ const AudioControls: React.FC = () => {
     }
   };
 
+  const toggleParticles = () => {
+    const newParticlesState = !particlesEnabled;
+    setParticlesEnabled(newParticlesState);
+    particleSystem.setEnabled(newParticlesState);
+  };
+
   return (
     <div className="audio-controls">
       <button 
@@ -53,6 +60,14 @@ const AudioControls: React.FC = () => {
           disabled={isMuted}
         />
       </div>
+      
+      <button 
+        className="particles-button"
+        onClick={toggleParticles}
+        title={particlesEnabled ? 'Disable particles' : 'Enable particles'}
+      >
+        {particlesEnabled ? '✨' : '🚫'}
+      </button>
     </div>
   );
 };
