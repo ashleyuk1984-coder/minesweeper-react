@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Difficulty } from '../types';
 import { useMinesweeper } from '../hooks/useMinesweeper';
+import { useTheme } from '../hooks/useTheme';
 import Board from './Board';
 import GameStatus from './GameStatus';
 import Statistics from './Statistics';
+import ThemeSelector from './ThemeSelector';
 
 const Game: React.FC = () => {
   const {
@@ -23,6 +25,8 @@ const Game: React.FC = () => {
 
   const [showStats, setShowStats] = useState(false);
 
+  const { currentTheme, availableThemes, changeTheme } = useTheme();
+
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
     setDifficulty(newDifficulty);
   };
@@ -34,14 +38,21 @@ const Game: React.FC = () => {
         <p>Left-click to reveal • Right-click to cycle Flag→?→Clear • Middle-click/both buttons to chord</p>
       </header>
 
-      <GameStatus
-        gameState={gameState}
-        minesLeft={minesLeft}
-        timeElapsed={timeElapsed}
-        difficulty={difficulty}
-        onReset={resetGame}
-        onDifficultyChange={handleDifficultyChange}
-      />
+        <div className="game-controls-row">
+          <GameStatus
+            gameState={gameState}
+            minesLeft={minesLeft}
+            timeElapsed={timeElapsed}
+            difficulty={difficulty}
+            onReset={resetGame}
+            onDifficultyChange={handleDifficultyChange}
+          />
+          <ThemeSelector
+            currentTheme={currentTheme}
+            availableThemes={availableThemes}
+            onThemeChange={changeTheme}
+          />
+        </div>
 
       <div className="game-board-container">
         <Board
