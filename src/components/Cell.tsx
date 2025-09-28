@@ -2,25 +2,46 @@ import React, { useRef, useEffect } from 'react';
 import { Cell as CellType, CellState } from '../types';
 import { audioSystem } from '../utils/audioSystem';
 import { particleSystem } from '../utils/particleSystem';
+import { cellAnimationManager } from '../utils/animationSystem';
 
 interface CellProps {
   cell: CellType;
   onClick: (row: number, col: number) => void;
   onRightClick: (row: number, col: number) => void;
   onChord: (row: number, col: number) => void;
+  animationsEnabled?: boolean;
 }
 
-const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => {
+const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord, animationsEnabled = true }) => {
   const cellRef = useRef<HTMLButtonElement>(null);
   const prevStateRef = useRef(cell.state);
   
-  // Track state changes for particle effects
+  // Setup enhanced hover effects and animations
+  useEffect(() => {
+    if (cellRef.current && animationsEnabled) {
+      cellAnimationManager.enhanceHover(cellRef.current);
+      
+      return () => {
+        if (cellRef.current) {
+          cellAnimationManager.cleanup(cellRef.current);
+        }
+      };
+    }
+  }, [animationsEnabled]);
+  
+  // Track state changes for particle effects and animations
   useEffect(() => {
     if (prevStateRef.current !== cell.state && cellRef.current) {
       const center = particleSystem.getElementCenter(cellRef.current);
       
       // Trigger effects based on state change
       if (cell.state === CellState.REVEALED) {
+        // Add reveal animation
+        if (animationsEnabled) {
+          cellAnimationManager.triggerReveal(cellRef.current);
+          cellAnimationManager.triggerRipple(cellRef.current);
+        }
+        
         if (cell.isMine) {
           // Explosion effect for mines
           particleSystem.explosion(center.x, center.y, 1.5);
@@ -32,18 +53,29 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
     }
     
     prevStateRef.current = cell.state;
-  }, [cell.state, cell.isMine]);
+  }, [cell.state, cell.isMine, animationsEnabled]);
 
   const handleClick = () => {
     // Only prevent clicks on revealed cells if they don't have numbers (for chording)
     if (cell.state === CellState.REVEALED && cell.neighborMines === 0) {
       return; // Don't allow normal clicks on revealed empty cells
     }
+    
+    // Add click animation
+    if (cellRef.current && animationsEnabled) {
+      cellAnimationManager.triggerClick(cellRef.current);
+    }
+    
     onClick(cell.row, cell.col);
   };
 
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Add click animation
+    if (cellRef.current && animationsEnabled) {
+      cellAnimationManager.triggerClick(cellRef.current);
+    }
     
     // Add particle effect for flagging
     if (cellRef.current && cell.state === CellState.HIDDEN) {

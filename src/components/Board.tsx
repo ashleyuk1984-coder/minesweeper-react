@@ -7,9 +7,10 @@ interface BoardProps {
   onCellClick: (row: number, col: number) => void;
   onCellRightClick: (row: number, col: number) => void;
   onCellChord: (row: number, col: number) => void;
+  animationsEnabled?: boolean;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick, onCellChord }) => {
+const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick, onCellChord, animationsEnabled = true }) => {
   if (!board || board.length === 0) {
     return <div className="board-loading">Loading...</div>;
   }
@@ -30,6 +31,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, onCellRightClick, onC
             onClick={onCellClick}
             onRightClick={onCellRightClick}
             onChord={onCellChord}
+            animationsEnabled={animationsEnabled}
           />
         ))
       )}

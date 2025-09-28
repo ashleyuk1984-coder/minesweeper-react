@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Difficulty } from '../types';
 import { useMinesweeper } from '../hooks/useMinesweeper';
 import { useTheme } from '../hooks/useTheme';
@@ -7,6 +7,8 @@ import GameStatus from './GameStatus';
 import Statistics from './Statistics';
 import ThemeSelector from './ThemeSelector';
 import AudioControls from './AudioControls';
+import { AnimationControls } from './AnimationControls';
+import { cellAnimationManager, animationUtils } from '../utils/animationSystem';
 
 const Game: React.FC = () => {
   const {
@@ -25,8 +27,23 @@ const Game: React.FC = () => {
   } = useMinesweeper(Difficulty.EASY);
 
   const [showStats, setShowStats] = useState(false);
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
+    // Check for reduced motion preference and localStorage
+    const savedPreference = localStorage.getItem('minesweeper-animations');
+    if (savedPreference !== null) {
+      return JSON.parse(savedPreference);
+    }
+    // Default to false if user prefers reduced motion
+    return !animationUtils.respectsReducedMotion();
+  });
 
   const { currentTheme, availableThemes, changeTheme } = useTheme();
+  
+  // Save animation preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('minesweeper-animations', JSON.stringify(animationsEnabled));
+    cellAnimationManager.updateSettings({ enabled: animationsEnabled });
+  }, [animationsEnabled]);
 
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
     setDifficulty(newDifficulty);
@@ -55,6 +72,10 @@ const Game: React.FC = () => {
               onThemeChange={changeTheme}
             />
             <AudioControls />
+            <AnimationControls
+              animationsEnabled={animationsEnabled}
+              onToggleAnimations={setAnimationsEnabled}
+            />
           </div>
         </div>
 
@@ -64,6 +85,7 @@ const Game: React.FC = () => {
           onCellClick={onCellClick}
           onCellRightClick={onCellRightClick}
           onCellChord={onCellChord}
+          animationsEnabled={animationsEnabled}
         />
       </div>
 

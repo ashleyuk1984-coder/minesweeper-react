@@ -40,6 +40,11 @@ export interface Theme {
     // Borders and shadows
     borderColor: string;
     shadowColor: string;
+    
+    // Animation colors
+    rippleColor: string;
+    hoverGlow: string;
+    cellShadowHover: string;
   };
 }
 
@@ -80,6 +85,10 @@ export const themes: Record<string, Theme> = {
       
       borderColor: 'rgba(255, 255, 255, 0.3)',
       shadowColor: 'rgba(0, 0, 0, 0.1)',
+      
+      rippleColor: 'rgba(52, 152, 219, 0.6)',
+      hoverGlow: 'rgba(52, 152, 219, 0.3)',
+      cellShadowHover: 'rgba(0, 0, 0, 0.18)',
     },
   },
   dark: {
@@ -118,6 +127,10 @@ export const themes: Record<string, Theme> = {
       
       borderColor: 'rgba(255, 255, 255, 0.1)',
       shadowColor: 'rgba(0, 0, 0, 0.3)',
+      
+      rippleColor: 'rgba(92, 107, 192, 0.6)',
+      hoverGlow: 'rgba(92, 107, 192, 0.4)',
+      cellShadowHover: 'rgba(0, 0, 0, 0.4)',
     },
   },
   neon: {
@@ -156,6 +169,10 @@ export const themes: Record<string, Theme> = {
       
       borderColor: 'rgba(0, 255, 136, 0.3)',
       shadowColor: 'rgba(0, 255, 136, 0.2)',
+      
+      rippleColor: 'rgba(0, 255, 136, 0.8)',
+      hoverGlow: 'rgba(0, 255, 136, 0.4)',
+      cellShadowHover: 'rgba(0, 255, 136, 0.3)',
     },
   },
   ocean: {
@@ -194,6 +211,10 @@ export const themes: Record<string, Theme> = {
       
       borderColor: 'rgba(255, 255, 255, 0.4)',
       shadowColor: 'rgba(33, 150, 243, 0.2)',
+      
+      rippleColor: 'rgba(33, 150, 243, 0.6)',
+      hoverGlow: 'rgba(33, 150, 243, 0.3)',
+      cellShadowHover: 'rgba(33, 150, 243, 0.2)',
     },
   },
 };
