@@ -19,12 +19,23 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
 
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Play appropriate sound based on current state
+    if (cell.state === CellState.HIDDEN) {
+      audioSystem.playFlag();
+    } else if (cell.state === CellState.FLAGGED) {
+      audioSystem.playQuestion();
+    } else if (cell.state === CellState.QUESTIONED) {
+      audioSystem.playCellClick();
+    }
+    
     onRightClick(cell.row, cell.col);
   };
 
   const handleMiddleClick = (e: React.MouseEvent) => {
     if (e.button === 1) { // Middle mouse button
       e.preventDefault();
+      audioSystem.playChord();
       onChord(cell.row, cell.col);
     }
   };
@@ -33,6 +44,7 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
     // Handle both left and right buttons pressed simultaneously
     if (e.buttons === 3) { // Both left (1) and right (2) buttons = 3
       e.preventDefault();
+      audioSystem.playChord();
       onChord(cell.row, cell.col);
     }
   };

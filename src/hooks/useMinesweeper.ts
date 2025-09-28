@@ -122,9 +122,11 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     if (newGameState === GameState.LOST) {
       setGameState(GameState.LOST);
       setBoard(revealAllMines(newBoard));
+      audioSystem.playExplosion();
     } else if (newGameState === GameState.WON) {
       setGameState(GameState.WON);
       setBoard(flagRemainingMines(newBoard));
+      audioSystem.playVictory();
     } else if (!isFirstClick) {
       setGameState(GameState.PLAYING);
     }
@@ -157,9 +159,11 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     if (newGameState === GameState.LOST) {
       setGameState(GameState.LOST);
       setBoard(revealAllMines(newBoard));
+      audioSystem.playExplosion();
     } else if (newGameState === GameState.WON) {
       setGameState(GameState.WON);
       setBoard(flagRemainingMines(newBoard));
+      audioSystem.playVictory();
     }
 
     // Update mines left

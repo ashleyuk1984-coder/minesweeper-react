@@ -6,6 +6,7 @@ import Board from './Board';
 import GameStatus from './GameStatus';
 import Statistics from './Statistics';
 import ThemeSelector from './ThemeSelector';
+import AudioControls from './AudioControls';
 
 const Game: React.FC = () => {
   const {
@@ -47,11 +48,14 @@ const Game: React.FC = () => {
             onReset={resetGame}
             onDifficultyChange={handleDifficultyChange}
           />
-          <ThemeSelector
-            currentTheme={currentTheme}
-            availableThemes={availableThemes}
-            onThemeChange={changeTheme}
-          />
+          <div className="secondary-controls">
+            <ThemeSelector
+              currentTheme={currentTheme}
+              availableThemes={availableThemes}
+              onThemeChange={changeTheme}
+            />
+            <AudioControls />
+          </div>
         </div>
 
       <div className="game-board-container">
