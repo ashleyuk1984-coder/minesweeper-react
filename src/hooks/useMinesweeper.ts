@@ -36,7 +36,7 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
 
     if (gameState === GameState.PLAYING && startTime) {
       interval = setInterval(() => {

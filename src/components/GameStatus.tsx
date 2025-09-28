@@ -50,20 +50,6 @@ const GameStatus: React.FC<GameStatusProps> = ({
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const getDifficultyDisplayName = (diff: Difficulty) => {
-    switch (diff) {
-      case Difficulty.EASY:
-        return 'Easy';
-      case Difficulty.MEDIUM:
-        return 'Medium';
-      case Difficulty.HARD:
-        return 'Hard';
-      case Difficulty.CUSTOM:
-        return 'Custom';
-      default:
-        return 'Unknown';
-    }
-  };
 
   return (
     <div className="game-status">
