@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { audioSystem } from '../utils/audioSystem';
+import { particleSystem } from '../utils/particleSystem';
 
 const AudioControls: React.FC = () => {
   const [volume, setVolume] = useState(audioSystem.getVolume());
