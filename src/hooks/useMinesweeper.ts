@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Cell, GameState, GameConfig, Difficulty, DIFFICULTY_CONFIGS } from '../types';
+import { Cell, GameState, GameConfig, Difficulty, DIFFICULTY_CONFIGS, PlayerStatistics } from '../types';
 import {
   createEmptyBoard,
   placeMines,
@@ -11,6 +11,7 @@ import {
   revealAllMines,
   chordReveal,
 } from '../utils/gameLogic';
+import { getStatistics, updateStatistics, resetStatistics } from '../utils/statistics';
 
 interface UseMinesweeperReturn {
   board: Cell[][];
@@ -19,11 +20,13 @@ interface UseMinesweeperReturn {
   timeElapsed: number;
   difficulty: Difficulty;
   config: GameConfig;
+  statistics: PlayerStatistics;
   onCellClick: (row: number, col: number) => void;
   onCellRightClick: (row: number, col: number) => void;
   onCellChord: (row: number, col: number) => void;
   resetGame: () => void;
   setDifficulty: (difficulty: Difficulty, customConfig?: GameConfig) => void;
+  resetStatistics: () => void;
 }
 
 export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY): UseMinesweeperReturn => {
@@ -35,6 +38,7 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isFirstClick, setIsFirstClick] = useState<boolean>(true);
+  const [statistics, setStatistics] = useState<PlayerStatistics>(() => getStatistics());
 
   // Timer effect
   useEffect(() => {
@@ -52,6 +56,14 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
       }
     };
   }, [gameState, startTime]);
+
+  // Update statistics when game ends
+  useEffect(() => {
+    if (gameState === GameState.WON || gameState === GameState.LOST) {
+      const updatedStats = updateStatistics(gameState, difficulty, timeElapsed);
+      setStatistics(updatedStats);
+    }
+  }, [gameState, difficulty, timeElapsed]);
 
   const resetGame = useCallback(() => {
     const newBoard = createEmptyBoard(config.rows, config.cols);
@@ -151,6 +163,11 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     setMinesLeft(getMinesLeft(newBoard, config.mines));
   }, [board, gameState, config]);
 
+  const handleResetStatistics = useCallback(() => {
+    const freshStats = resetStatistics();
+    setStatistics(freshStats);
+  }, []);
+
   return {
     board,
     gameState,
@@ -158,10 +175,12 @@ export const useMinesweeper = (initialDifficulty: Difficulty = Difficulty.EASY):
     timeElapsed,
     difficulty,
     config,
+    statistics,
     onCellClick,
     onCellRightClick,
     onCellChord,
     resetGame,
     setDifficulty,
+    resetStatistics: handleResetStatistics,
   };
 };
