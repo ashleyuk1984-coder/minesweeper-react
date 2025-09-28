@@ -10,6 +10,10 @@ interface CellProps {
 
 const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => {
   const handleClick = () => {
+    // Only prevent clicks on revealed cells if they don't have numbers (for chording)
+    if (cell.state === CellState.REVEALED && cell.neighborMines === 0) {
+      return; // Don't allow normal clicks on revealed empty cells
+    }
     onClick(cell.row, cell.col);
   };
 
