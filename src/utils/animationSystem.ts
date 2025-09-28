@@ -44,11 +44,20 @@ export class CellAnimationManager {
 
   updateSettings(settings: Partial<AnimationSettings>) {
     this.animationSettings = { ...this.animationSettings, ...settings };
+    
+    // Automatically disable animations if user prefers reduced motion
+    if (animationUtils.respectsReducedMotion()) {
+      this.animationSettings.enabled = false;
+    }
+  }
+
+  isEnabled(): boolean {
+    return this.animationSettings.enabled && !animationUtils.respectsReducedMotion();
   }
 
   // Trigger ripple effect
   triggerRipple(cellElement: HTMLElement): void {
-    if (!this.animationSettings.enabled) return;
+    if (!this.isEnabled()) return;
 
     // Clear any existing ripple
     cellElement.classList.remove('ripple-effect');
@@ -67,7 +76,7 @@ export class CellAnimationManager {
 
   // Trigger cell reveal animation
   triggerReveal(cellElement: HTMLElement, delay: number = 0): void {
-    if (!this.animationSettings.enabled) return;
+    if (!this.isEnabled()) return;
 
     const animate = () => {
       cellElement.classList.add('revealing');
@@ -86,7 +95,7 @@ export class CellAnimationManager {
 
   // Trigger click animation
   triggerClick(cellElement: HTMLElement): void {
-    if (!this.animationSettings.enabled) return;
+    if (!this.isEnabled()) return;
 
     cellElement.classList.remove('clicking');
     cellElement.offsetHeight; // Force reflow
@@ -99,7 +108,7 @@ export class CellAnimationManager {
 
   // Trigger cascade reveal for multiple cells
   triggerCascadeReveal(cellElements: HTMLElement[], centerX: number, centerY: number): void {
-    if (!this.animationSettings.enabled) return;
+    if (!this.isEnabled()) return;
 
     const cellPositions = cellElements.map((element, index) => {
       const rect = element.getBoundingClientRect();
@@ -131,7 +140,7 @@ export class CellAnimationManager {
 
   // Enhanced hover effect with glow
   enhanceHover(cellElement: HTMLElement): void {
-    if (!this.animationSettings.enabled) return;
+    if (!this.isEnabled()) return;
 
     const handleMouseEnter = () => {
       if (cellElement.classList.contains('revealed') || cellElement.classList.contains('mine')) {

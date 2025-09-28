@@ -1153,10 +1153,59 @@ body {
   transform: scale(0.95);
 }
 
+@keyframes animationButtonGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--theme-rippleColor);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--theme-rippleColor), 0 0 25px var(--theme-hoverGlow);
+  }
+}
+
+.animation-controls .animation-button:hover {
+  animation: animationButtonGlow 1.5s ease-in-out infinite;
+}
+
 .reduced-motion-notice {
   font-size: 1.2rem;
   opacity: 0.7;
   animation: none !important;
+}
+
+/* Performance optimizations */
+.cell {
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.cell:hover {
+  will-change: transform, box-shadow;
+}
+
+.cell.revealing,
+.cell.clicking,
+.cell.cascade-reveal {
+  will-change: transform, opacity;
+}
+
+/* Disable animations for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .cell::before,
+  .cell:hover,
+  .cell:active,
+  .cell.revealing,
+  .cell.clicking,
+  .cell.cascade-reveal,
+  .cell.ripple-effect {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .cell:hover {
+    transform: none !important;
+  }
 }
 
 /* Mobile responsive for statistics */
