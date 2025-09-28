@@ -139,7 +139,21 @@ export const toggleFlag = (board: Cell[][], row: number, col: number): Cell[][] 
     return newBoard;
   }
   
-  cell.state = cell.state === CellState.FLAGGED ? CellState.HIDDEN : CellState.FLAGGED;
+  // Cycle: HIDDEN → FLAGGED → QUESTIONED → HIDDEN
+  switch (cell.state) {
+    case CellState.HIDDEN:
+      cell.state = CellState.FLAGGED;
+      break;
+    case CellState.FLAGGED:
+      cell.state = CellState.QUESTIONED;
+      break;
+    case CellState.QUESTIONED:
+      cell.state = CellState.HIDDEN;
+      break;
+    default:
+      cell.state = CellState.FLAGGED;
+  }
+  
   return newBoard;
 };
 

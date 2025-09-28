@@ -42,6 +42,10 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
       return '🚩';
     }
     
+    if (cell.state === CellState.QUESTIONED) {
+      return '❓';
+    }
+    
     if (cell.state === CellState.REVEALED) {
       if (cell.isMine) {
         return '💣';
@@ -69,6 +73,8 @@ const Cell: React.FC<CellProps> = ({ cell, onClick, onRightClick, onChord }) => 
       baseClass += ' hidden';
       if (cell.state === CellState.FLAGGED) {
         baseClass += ' flagged';
+      } else if (cell.state === CellState.QUESTIONED) {
+        baseClass += ' questioned';
       }
     }
     

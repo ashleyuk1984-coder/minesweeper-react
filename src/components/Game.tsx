@@ -26,7 +26,7 @@ const Game: React.FC = () => {
     <div className="game">
       <header className="game-header">
         <h1>💣 Minesweeper</h1>
-        <p>Left-click to reveal, right-click to flag, middle-click/both buttons to chord</p>
+        <p>Left-click to reveal • Right-click to cycle Flag→?→Clear • Middle-click/both buttons to chord</p>
       </header>
 
       <GameStatus

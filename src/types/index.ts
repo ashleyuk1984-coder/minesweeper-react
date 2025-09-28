@@ -2,6 +2,7 @@ export enum CellState {
   HIDDEN = 'hidden',
   REVEALED = 'revealed',
   FLAGGED = 'flagged',
+  QUESTIONED = 'questioned',
 }
 
 export enum GameState {
@@ -36,6 +37,19 @@ export interface GameStats {
   minesLeft: number;
   timeElapsed: number;
   gameState: GameState;
+}
+
+export interface PlayerStatistics {
+  gamesPlayed: number;
+  gamesWon: number;
+  gamesLost: number;
+  totalTime: number;
+  bestTime: { [key in Difficulty]?: number };
+  currentStreak: number;
+  bestStreak: number;
+  averageTime: number;
+  winRate: number;
+  lastPlayed: number;
 }
 
 export const DIFFICULTY_CONFIGS: Record<Difficulty, GameConfig> = {
