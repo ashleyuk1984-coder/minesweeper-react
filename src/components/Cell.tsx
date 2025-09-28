@@ -1,5 +1,6 @@
 import React from 'react';
 import { Cell as CellType, CellState } from '../types';
+import { audioSystem } from '../utils/audioSystem';
 
 interface CellProps {
   cell: CellType;

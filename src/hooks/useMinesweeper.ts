@@ -13,6 +13,7 @@ import {
   flagRemainingMines,
 } from '../utils/gameLogic';
 import { getStatistics, updateStatistics, resetStatistics } from '../utils/statistics';
+import { audioSystem } from '../utils/audioSystem';
 
 interface UseMinesweeperReturn {
   board: Cell[][];
