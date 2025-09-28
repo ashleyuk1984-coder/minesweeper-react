@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Theme, themes, getTheme, applyTheme } from '../utils/themes';
+import { themes, getTheme, applyTheme } from '../utils/themes';
 
 const THEME_STORAGE_KEY = 'minesweeper-theme';
 
